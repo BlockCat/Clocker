@@ -1,0 +1,5 @@
+name: Clocker
+version: 1.0
+main: me.blockcat.clocker.Clocker
+commands:
+  clock:
