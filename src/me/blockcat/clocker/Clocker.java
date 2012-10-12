@@ -11,12 +11,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Clocker extends JavaPlugin {
 
-	public HashMap<String, Integer> timeZones = new HashMap<String, Integer>();
-	private DateFormat formatter = new SimpleDateFormat("HH:mm:ss -  MM/dd");
+	//public HashMap<String, Integer> timeZones = new HashMap<String, Integer>();
+	private DateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	private DateFormat daysFormat = new SimpleDateFormat("MM/dd");
 	private Configuration config;
 
@@ -28,7 +29,7 @@ public class Clocker extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		config.save();
+		//config.save();
 	}
 
 	public String getTime() {
@@ -54,7 +55,7 @@ public class Clocker extends JavaPlugin {
 	public String getPlayerTime(Player p, int h, int m, int s) {
 		String time = "";
 		String[] days = daysFormat.format(new Date()).split("/");
-		h = h - config.getServerZone() + timeZones.get(p.getName());
+		h = h - config.getServerZone() + p.getMetadata("timezone").get(0).asInt();
 		int day = Integer.parseInt(days[0]);
 		int month = Integer.parseInt(days[1]);
 		System.out.println(h/24);
@@ -97,7 +98,7 @@ public class Clocker extends JavaPlugin {
 	public String getServerTime(Player p, int h, int m, int s) {
 		String time = "";
 		String[] days = daysFormat.format(new Date()).split("/");
-		h = h + config.getServerZone() - timeZones.get(p.getName());
+		h = h + config.getServerZone() - p.getMetadata("timezone").get(0).asInt();
 		int day = Integer.parseInt(days[0]);
 		int month = Integer.parseInt(days[1]);
 		System.out.println(h/24);
@@ -122,9 +123,9 @@ public class Clocker extends JavaPlugin {
 		return time;
 	}
 
-	public void addPlayers (String player, int zone) {
+	/*public void addPlayers (String player, int zone) {
 		timeZones.put(player, zone);
-	}
+	}*/
 
 	@Override
 	public boolean onCommand(CommandSender cs, Command cmnd, String string, String[] args) {
@@ -146,7 +147,8 @@ public class Clocker extends JavaPlugin {
 					} else {
 						try {
 						int z = Integer.parseInt(args[1]);
-						timeZones.put(p.getName(), z);
+						//timeZones.put(p.getName(), z);
+						p.setMetadata("timezone", new FixedMetadataValue(this, z));
 						p.sendMessage((String) (ChatColor.YELLOW + "Your timezone has been set to: " + (z >=  0 ? ("+" + z) : z)));
 						} catch(Exception e) {
 							p.sendMessage("Not a vaild number.");
@@ -161,7 +163,7 @@ public class Clocker extends JavaPlugin {
 				} else if (args[0].equalsIgnoreCase("tmt")) {
 					NumberFormat f = new DecimalFormat("00");
 					if (args.length >= 2) {
-						if (timeZones.containsKey(p.getName())) {
+						if (p.hasMetadata("timezone")) {
 							// Send his time.  !! own timezone + server timezone
 							String wonderTime = "";
 							String[] times = args[1].split(":");
@@ -211,7 +213,7 @@ public class Clocker extends JavaPlugin {
 				else if (args[0].equalsIgnoreCase("tst")) {
 					NumberFormat f = new DecimalFormat("00");
 					if (args.length >= 2) {
-						if (timeZones.containsKey(p.getName())) {
+						if (p.hasMetadata("timezone")) {
 							// Send his time.  !! own timezone + server timezone
 							String wonderTime = "";
 							String[] times = args[1].split(":");

@@ -30,31 +30,8 @@ public class Configuration {
 			plugin.saveConfig();
 		}
 		serverZone = config.getInt("Server-Zone");
-
-		try {
-			Scanner scan = new Scanner(players);
-			while (scan.hasNextLine()) {
-				String[] line = scan.nextLine().split("=");
-				String name = line[0];
-				int zone = Integer.parseInt(line[1]);
-				plugin.addPlayers(name, zone);
-			}
-		} catch (FileNotFoundException e) {}
 	}
 
-	public void save() {
-		try {
-			BufferedWriter b = new BufferedWriter(new FileWriter(players));
-			for (Entry<String, Integer> m : plugin.timeZones.entrySet()) {
-				b.write(m.getKey() +"=" + m.getValue());
-				b.newLine();
-			}
-			
-			b.close();
-		} catch (IOException e) {}
-		
-		
-	}
 
 	public int getServerZone() {
 		return serverZone;
