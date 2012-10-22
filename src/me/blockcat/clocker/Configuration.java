@@ -29,9 +29,43 @@ public class Configuration {
 			config.set("Server-Zone", 0);
 			plugin.saveConfig();
 		}
+
+		// YAML does not support +++
 		serverZone = config.getInt("Server-Zone");
+
+		try {
+			File players = new File(plugin.getDataFolder(), "playerTimes.txt");
+			Scanner scan = new Scanner(players);
+
+			while (scan.hasNextLine()) {
+
+				String[] line = scan.nextLine().split("=");
+				String name = line[0];
+				int zone = Integer.parseInt(line[1]);
+				int display = 24;
+				try {
+					display = Integer.parseInt(line[2]);
+				} catch (Exception e) {
+				}
+				plugin.addPlayers(name, zone, display);
+			}
+		} catch (FileNotFoundException e) {
+		}
 	}
 
+	public void save() {
+		try {
+			BufferedWriter b = new BufferedWriter(new FileWriter(players));
+			for (Entry<String, Integer> m : plugin.timeZones.entrySet()) {
+
+				b.write(m.getKey() + "=" + m.getValue() + "="
+						+ plugin.displayMode.get(m.getKey()));
+				b.newLine();
+			}
+			b.close();
+		} catch (IOException e) {
+		}
+	}
 
 	public int getServerZone() {
 		return serverZone;
